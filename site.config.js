@@ -8,18 +8,18 @@ module.exports = {
 
   // basic site info (required)
   name: 'Kyle space',
-  domain: 'transitivebullsh.it',
+  domain: 'https://balsam-grill-d62.notion.site/TestMyBlog-320e62d381154f31b7618c000673bc45',
   author: 'Kyle',
 
   // open graph metadata (optional)
-  description: 'Example site description',
-  socialImageTitle: 'https://balsam-grill-d62.notion.site/TestMyBlog-320e62d381154f31b7618c000673bc45',
-  socialImageSubtitle: 'Hello World! 👋',
+//   description: 'Example site description',
+//   socialImageTitle: 'https://balsam-grill-d62.notion.site/TestMyBlog-320e62d381154f31b7618c000673bc45',
+//   socialImageSubtitle: 'Hello World! 👋',
 
   // social usernames (optional)
-  twitter: 'transitive_bs',
-  github: 'transitive-bullshit',
-  linkedin: 'fisch2',
+  twitter: 'kyle4win1',
+  github: 'kyrie96521',
+  linkedin: 'Kyle Yang',
 
   // default notion icon and cover images for site-wide consistency (optional)
   // page-specific values will override these site-wide defaults
