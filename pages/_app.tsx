@@ -26,6 +26,7 @@ import { useRouter } from 'next/router'
 import posthog from 'posthog-js'
 
 import { bootstrap } from 'lib/bootstrap-client'
+
 import {
   isServer,
   fathomId,
