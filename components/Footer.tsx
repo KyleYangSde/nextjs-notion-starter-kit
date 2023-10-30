@@ -10,7 +10,7 @@ import { IoMoonSharp } from '@react-icons/all-files/io5/IoMoonSharp'
 
 import { useDarkMode } from 'lib/use-dark-mode'
 import * as config from 'lib/config'
-
+import { Analytics } from '@vercel/analytics/react'
 import styles from './styles.module.css'
 
 // TODO: merge the data and icons from PageSocial with the social links in Footer
@@ -52,6 +52,8 @@ export const FooterImpl: React.FC = () => {
       </div>
 
       <div className={styles.social}>
+        <Analytics />
+
         {config.twitter && (
           <a
             className={styles.twitter}
