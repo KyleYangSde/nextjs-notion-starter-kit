@@ -11,7 +11,7 @@ export default siteConfig({
 
   // basic site info (required)
   name: 'Kyle space',
-  domain: 'balsam-grill-d62.notion.site',
+  domain: 'www.kylee.top',
   author: 'Kyle',
 
   // open graph metadata (optional)

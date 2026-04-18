@@ -1,10 +1,10 @@
 import pMemoize from 'p-memoize'
-import { getAllPagesInSpace, uuidToId } from 'notion-utils'
+import { PageMap } from 'notion-types'
 
 import { includeNotionIdInUrls } from './config'
 import { getNotionPage } from './notion-api'
 import { getCanonicalPageId } from './get-canonical-page-id'
-import { normalizeRecordMap } from './normalize-record-map'
+import { getRecordMapValue, normalizeRecordMap } from './normalize-record-map'
 import * as config from './config'
 import * as types from './types'
 
@@ -26,38 +26,70 @@ const getAllPages = pMemoize(getAllPagesImpl, {
   cacheKey: (...args) => JSON.stringify(args)
 })
 
+export const getRootPageRecordMap = pMemoize(
+  async (rootNotionPageId: string) =>
+    normalizeRecordMap(await getNotionPage(rootNotionPageId)),
+  {
+    cacheKey: (...args) => JSON.stringify(args)
+  }
+)
+
+export const getSitePageIndex = pMemoize(
+  async (
+    rootNotionPageId: string,
+    rootNotionSpaceId: string
+  ): Promise<Array<{ pageId: string; block: any }>> => {
+    const recordMap = await getRootPageRecordMap(rootNotionPageId)
+    const normalizedRootPageId = rootNotionPageId.replace(/-/g, '')
+
+    return Object.entries(recordMap.block || {})
+      .map(([pageId, entry]) => ({
+        pageId,
+        block: getRecordMapValue<any>(entry as any)
+      }))
+      .filter(({ pageId, block }) => {
+        if (!block || block.alive === false) {
+          return false
+        }
+
+        if (pageId.replace(/-/g, '') === normalizedRootPageId) {
+          return false
+        }
+
+        if (block.type !== 'page' && block.type !== 'collection_view_page') {
+          return false
+        }
+
+        if (rootNotionSpaceId && block.space_id && block.space_id !== rootNotionSpaceId) {
+          return false
+        }
+
+        return true
+      })
+  },
+  {
+    cacheKey: (...args) => JSON.stringify(args)
+  }
+)
+
 async function getAllPagesImpl(
   rootNotionPageId: string,
   rootNotionSpaceId: string
 ): Promise<Partial<types.SiteMap>> {
-  const getPage = async (pageId: string, ...args) => {
-    console.log('\nnotion getPage', uuidToId(pageId))
-    return normalizeRecordMap(await getNotionPage(pageId, ...args))
-  }
+  const recordMap = await getRootPageRecordMap(rootNotionPageId)
+  const pageIndex = await getSitePageIndex(rootNotionPageId, rootNotionSpaceId)
 
-  const pageMap = await getAllPagesInSpace(
-    rootNotionPageId,
-    rootNotionSpaceId,
-    getPage,
-    {
-      concurrency: 1
-    }
-  )
-
-  const canonicalPageMap = Object.keys(pageMap).reduce(
-    (map, pageId: string) => {
-      const recordMap = pageMap[pageId]
-      if (!recordMap) {
-        throw new Error(`Error loading page "${pageId}"`)
-      }
-
+  const canonicalPageMap = pageIndex.reduce(
+    (map, { pageId }) => {
       const canonicalPageId = getCanonicalPageId(pageId, recordMap, {
         uuid
       })
 
+      if (!canonicalPageId) {
+        return map
+      }
+
       if (map[canonicalPageId]) {
-        // you can have multiple pages in different collections that have the same id
-        // TODO: we may want to error if neither entry is a collection page
         console.warn('error duplicate canonical page id', {
           canonicalPageId,
           pageId,
@@ -76,7 +108,9 @@ async function getAllPagesImpl(
   )
 
   return {
-    pageMap,
+    pageMap: {
+      [rootNotionPageId]: recordMap
+    } as PageMap,
     canonicalPageMap
   }
 }

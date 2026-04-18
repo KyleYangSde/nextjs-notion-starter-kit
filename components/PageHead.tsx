@@ -3,7 +3,6 @@ import * as React from 'react'
 
 import * as types from 'lib/types'
 import * as config from 'lib/config'
-import { getSocialImageUrl } from 'lib/get-social-image-url'
 
 export const PageHead: React.FC<
   types.PageProps & {
@@ -12,13 +11,13 @@ export const PageHead: React.FC<
     image?: string
     url?: string
   }
-> = ({ site, title, description, pageId, image, url }) => {
+> = ({ site, title, description, image, url }) => {
   const rssFeedUrl = `${config.host}/feed`
 
   title = title ?? site?.name
   description = description ?? site?.description
 
-  const socialImageUrl = image || getSocialImageUrl(pageId)
+  const socialImageUrl = image || config.defaultPageCover
 
   return (
     <Head>
@@ -72,7 +71,7 @@ export const PageHead: React.FC<
       <link
         rel='alternate'
         type='application/rss+xml'
-        href={rssFeedUrl}
+        href={`${rssFeedUrl}.xml`}
         title={site?.name}
       />
 

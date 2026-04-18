@@ -6,13 +6,11 @@ import {
   getPageProperty,
   idToUuid
 } from 'notion-utils'
-import { ExtendedRecordMap } from 'notion-types'
 
 import * as config from 'lib/config'
-import { getSiteMap } from 'lib/get-site-map'
+import { getRootPageRecordMap, getSitePageIndex } from 'lib/get-site-map'
 import { getCanonicalPageUrl } from 'lib/map-page-url'
 import { mapImageUrl } from 'lib/map-image-url'
-import { getPageRootBlock } from 'lib/normalize-record-map'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   if (req.method !== 'GET') {
@@ -23,7 +21,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     return { props: {} }
   }
 
-  const siteMap = await getSiteMap()
+  const rootRecordMap = await getRootPageRecordMap(config.rootNotionPageId)
+  const sitePageIndex = await getSitePageIndex(
+    config.rootNotionPageId,
+    config.rootNotionSpaceId
+  )
   const ttlMinutes = 24 * 60 // 24 hours
   const ttlSeconds = ttlMinutes * 60
 
@@ -35,41 +37,38 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     ttl: ttlMinutes
   })
 
-  for (const pagePath of Object.keys(siteMap.canonicalPageMap)) {
-    const pageId = siteMap.canonicalPageMap[pagePath]
-    const recordMap = siteMap.pageMap[pageId] as ExtendedRecordMap
-    if (!recordMap) continue
-
-    const block = getPageRootBlock(recordMap)
-    if (!block) continue
-
-    const parentPage = getBlockParentPage(block, recordMap)
+  for (const { pageId, block } of sitePageIndex) {
+    const parentPage = getBlockParentPage(block, rootRecordMap)
     const isBlogPost =
       block.type === 'page' &&
-      block.parent_table === 'collection' &&
+      block.parent_table === 'block' &&
       parentPage?.id === idToUuid(config.rootNotionPageId)
     if (!isBlogPost) {
       continue
     }
 
-    const title = getBlockTitle(block, recordMap) || config.name
+    const title = getBlockTitle(block, rootRecordMap) || config.name
     const description =
-      getPageProperty<string>('Description', block, recordMap) ||
+      getPageProperty<string>('Description', block, rootRecordMap) ||
       config.description
-    const url = getCanonicalPageUrl(config.site, recordMap)(pageId)
+    const url = getCanonicalPageUrl(config.site, rootRecordMap)(pageId)
     const lastUpdatedTime = getPageProperty<number>(
       'Last Updated',
       block,
-      recordMap
+      rootRecordMap
     )
-    const publishedTime = getPageProperty<number>('Published', block, recordMap)
+    const publishedTime = getPageProperty<number>(
+      'Published',
+      block,
+      rootRecordMap
+    )
     const date = lastUpdatedTime
       ? new Date(lastUpdatedTime)
       : publishedTime
       ? new Date(publishedTime)
       : undefined
     const socialImageUrl = mapImageUrl(
-      getPageProperty<string>('Social Image', block, recordMap) ||
+      getPageProperty<string>('Social Image', block, rootRecordMap) ||
         block.format?.page_cover ||
         config.defaultPageCover,
       block
