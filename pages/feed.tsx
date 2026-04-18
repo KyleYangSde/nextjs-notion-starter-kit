@@ -26,7 +26,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     config.rootNotionPageId,
     config.rootNotionSpaceId
   )
-  const ttlMinutes = 24 * 60 // 24 hours
+  const ttlMinutes = 10
   const ttlSeconds = ttlMinutes * 60
 
   const feed = new RSS({
