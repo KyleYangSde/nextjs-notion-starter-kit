@@ -1,5 +1,6 @@
 import { parsePageId, getPageTitle } from 'notion-utils'
 import { getPage } from './notion'
+import { getRecordMapValue } from './normalize-record-map'
 import * as config from './config'
 
 export const oembed = async ({
@@ -25,7 +26,8 @@ export const oembed = async ({
   const pageTitle = getPageTitle(page)
   if (pageTitle) title = pageTitle
 
-  const user = page.notion_user[Object.keys(page.notion_user)[0]]?.value
+  const firstUserKey = Object.keys(page.notion_user || {})[0]
+  const user = getRecordMapValue<any>(page.notion_user?.[firstUserKey] as any)
   const name = [user.given_name, user.family_name]
     .filter(Boolean)
     .join(' ')

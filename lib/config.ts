@@ -6,7 +6,6 @@
  */
 
 import { parsePageId } from 'notion-utils'
-import posthog from 'posthog-js'
 import { getEnv, getSiteConfig } from './get-config-value'
 import { getHostname, normalizeHostname } from './normalize-url'
 import { NavigationLink } from './site-config'

@@ -1,4 +1,5 @@
 import { PageProps } from './types'
+import { getPageRootBlock } from './normalize-record-map'
 
 export async function pageAcl({
   site,
@@ -23,10 +24,9 @@ export async function pageAcl({
     }
   }
 
-  const keys = Object.keys(recordMap.block)
-  const rootKey = keys[0]
+  const rootBlock = getPageRootBlock(recordMap)
 
-  if (!rootKey) {
+  if (!rootBlock) {
     return {
       error: {
         statusCode: 404,
@@ -35,8 +35,7 @@ export async function pageAcl({
     }
   }
 
-  const rootValue = recordMap.block[rootKey]?.value as any
-  const rootSpaceId = rootValue?.space_id
+  const rootSpaceId = rootBlock.space_id
 
   if (
     rootSpaceId &&

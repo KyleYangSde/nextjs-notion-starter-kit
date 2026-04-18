@@ -17,6 +17,7 @@ import { NotionRenderer } from 'react-notion-x'
 import { getBlockTitle, getPageProperty, formatDate } from 'notion-utils'
 import { mapPageUrl, getCanonicalPageUrl } from 'lib/map-page-url'
 import { mapImageUrl } from 'lib/map-image-url'
+import { getPageRootBlock } from 'lib/normalize-record-map'
 import { searchNotion } from 'lib/search-notion'
 import { useDarkMode } from 'lib/use-dark-mode'
 import * as types from 'lib/types'
@@ -189,8 +190,7 @@ export const NotionPage: React.FC<types.PageProps> = ({
     return mapPageUrl(site, recordMap, searchParams)
   }, [site, recordMap, lite])
 
-  const keys = Object.keys(recordMap?.block || {})
-  const block = recordMap?.block?.[keys[0]]?.value as types.Block | undefined
+  const block = getPageRootBlock(recordMap) as types.Block | undefined
 
   // const isRootPage =
   //   parsePageId(block?.id) === parsePageId(site?.rootNotionPageId)

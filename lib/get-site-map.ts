@@ -2,7 +2,7 @@ import pMemoize from 'p-memoize'
 import { getAllPagesInSpace, uuidToId } from 'notion-utils'
 
 import { includeNotionIdInUrls } from './config'
-import { notion } from './notion-api'
+import { getNotionPage } from './notion-api'
 import { getCanonicalPageId } from './get-canonical-page-id'
 import { normalizeRecordMap } from './normalize-record-map'
 import * as config from './config'
@@ -32,13 +32,16 @@ async function getAllPagesImpl(
 ): Promise<Partial<types.SiteMap>> {
   const getPage = async (pageId: string, ...args) => {
     console.log('\nnotion getPage', uuidToId(pageId))
-    return normalizeRecordMap(await notion.getPage(pageId, ...args))
+    return normalizeRecordMap(await getNotionPage(pageId, ...args))
   }
 
   const pageMap = await getAllPagesInSpace(
     rootNotionPageId,
     rootNotionSpaceId,
-    getPage
+    getPage,
+    {
+      concurrency: 1
+    }
   )
 
   const canonicalPageMap = Object.keys(pageMap).reduce(

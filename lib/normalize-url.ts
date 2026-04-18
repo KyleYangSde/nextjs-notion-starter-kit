@@ -7,11 +7,15 @@ function parseUrl(value?: string | null): URL | null {
 
   try {
     return new URL(trimmedValue)
-  } catch {}
+  } catch {
+    // ignore invalid absolute URLs and retry with a default protocol
+  }
 
   try {
     return new URL(`https://${trimmedValue}`)
-  } catch {}
+  } catch {
+    // ignore invalid hostnames and fall back to string cleanup below
+  }
 
   return null
 }
