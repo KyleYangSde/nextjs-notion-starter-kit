@@ -1,6 +1,7 @@
 module.exports = {
   // where it all starts -- the site's root Notion page (required)
-  rootNotionPageId: 'TestMyBlog-320e62d381154f31b7618c000673bc45',
+  rootNotionPageId:
+    'https://www.notion.so/kyleeee/Kyle-s-Blog-320e62d381154f31b7618c000673bc45',
 
   // if you want to restrict pages to a single notion workspace (optional)
   // (this should be a Notion ID; see the docs for how to extract this)
@@ -8,7 +9,7 @@ module.exports = {
 
   // basic site info (required)
   name: 'Kyle space',
-  domain: 'https://balsam-grill-d62.notion.site/TestMyBlog-320e62d381154f31b7618c000673bc45',
+  domain: 'balsam-grill-d62.notion.site',
   author: 'Kyle',
 
   // open graph metadata (optional)

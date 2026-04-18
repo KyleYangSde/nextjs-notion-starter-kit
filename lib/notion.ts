@@ -4,6 +4,7 @@ import { ExtendedRecordMap, SearchParams, SearchResults } from 'notion-types'
 import { mergeRecordMaps } from 'notion-utils'
 
 import { notion } from './notion-api'
+import { normalizeRecordMap } from './normalize-record-map'
 import { getPreviewImageMap } from './preview-images'
 import {
   isPreviewImageSupportEnabled,
@@ -21,12 +22,14 @@ const getNavigationLinkPages = pMemoize(
       return pMap(
         navigationLinkPageIds,
         async (navigationLinkPageId) =>
-          notion.getPage(navigationLinkPageId, {
-            chunkLimit: 1,
-            fetchMissingBlocks: false,
-            fetchCollections: false,
-            signFileUrls: false
-          }),
+          normalizeRecordMap(
+            await notion.getPage(navigationLinkPageId, {
+              chunkLimit: 1,
+              fetchMissingBlocks: false,
+              fetchCollections: false,
+              signFileUrls: false
+            })
+          ),
         {
           concurrency: 4
         }
@@ -38,7 +41,7 @@ const getNavigationLinkPages = pMemoize(
 )
 
 export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
-  let recordMap = await notion.getPage(pageId)
+  let recordMap = normalizeRecordMap(await notion.getPage(pageId))
 
   if (navigationStyle !== 'default') {
     // ensure that any pages linked to in the custom navigation header have

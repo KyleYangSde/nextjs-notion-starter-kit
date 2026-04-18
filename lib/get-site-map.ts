@@ -4,6 +4,7 @@ import { getAllPagesInSpace, uuidToId } from 'notion-utils'
 import { includeNotionIdInUrls } from './config'
 import { notion } from './notion-api'
 import { getCanonicalPageId } from './get-canonical-page-id'
+import { normalizeRecordMap } from './normalize-record-map'
 import * as config from './config'
 import * as types from './types'
 
@@ -31,7 +32,7 @@ async function getAllPagesImpl(
 ): Promise<Partial<types.SiteMap>> {
   const getPage = async (pageId: string, ...args) => {
     console.log('\nnotion getPage', uuidToId(pageId))
-    return notion.getPage(pageId, ...args)
+    return normalizeRecordMap(await notion.getPage(pageId, ...args))
   }
 
   const pageMap = await getAllPagesInSpace(

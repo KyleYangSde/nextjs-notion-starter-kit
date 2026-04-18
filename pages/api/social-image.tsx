@@ -13,6 +13,7 @@ import { PageBlock } from 'notion-types'
 import { notion } from 'lib/notion-api'
 import { mapImageUrl } from 'lib/map-image-url'
 import { interRegular } from 'lib/fonts'
+import { normalizeRecordMap } from 'lib/normalize-record-map'
 import * as config from 'lib/config'
 
 /**
@@ -34,7 +35,7 @@ export default withOGImage<'query', 'id'>({
         throw new Error('Invalid notion page id')
       }
 
-      const recordMap = await notion.getPage(pageId)
+      const recordMap = normalizeRecordMap(await notion.getPage(pageId))
 
       const keys = Object.keys(recordMap?.block || {})
       const block = recordMap?.block?.[keys[0]]?.value

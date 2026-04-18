@@ -24,6 +24,7 @@ export interface Params extends ParsedUrlQuery {
 export interface Site {
   name: string
   domain: string
+  rootDomain?: string
 
   rootNotionPageId: string
   rootNotionSpaceId: string

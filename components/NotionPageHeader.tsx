@@ -10,6 +10,10 @@ import { navigationStyle, navigationLinks, isSearchEnabled } from 'lib/config'
 
 import styles from './styles.module.css'
 
+const SafeHeader = Header as any
+const SafeBreadcrumbs = Breadcrumbs as any
+const SafeSearch = Search as any
+
 const ToggleThemeButton = () => {
   const [hasMounted, setHasMounted] = React.useState(false)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
@@ -38,13 +42,13 @@ export const NotionPageHeader: React.FC<{
   const { components, mapPageUrl } = useNotionContext()
 
   if (navigationStyle === 'default') {
-    return <Header block={block} />
+    return <SafeHeader block={block} />
   }
 
   return (
     <header className='notion-header'>
       <div className='notion-nav-header'>
-        <Breadcrumbs block={block} rootOnly={true} />
+        <SafeBreadcrumbs block={block} rootOnly={true} />
 
         <div className='notion-nav-header-rhs breadcrumbs'>
           {navigationLinks
@@ -79,7 +83,7 @@ export const NotionPageHeader: React.FC<{
 
           <ToggleThemeButton />
 
-          {isSearchEnabled && <Search block={block} title={null} />}
+          {isSearchEnabled && <SafeSearch block={block} title={null} />}
         </div>
       </div>
     </header>

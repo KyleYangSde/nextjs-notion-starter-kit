@@ -8,6 +8,7 @@
 import { parsePageId } from 'notion-utils'
 import posthog from 'posthog-js'
 import { getEnv, getSiteConfig } from './get-config-value'
+import { getHostname, normalizeHostname } from './normalize-url'
 import { NavigationLink } from './site-config'
 import {
   PageUrlOverridesInverseMap,
@@ -16,8 +17,11 @@ import {
   Site
 } from './types'
 
+const rawRootNotionPageId = getSiteConfig<string>('rootNotionPageId')
+const rawDomain = getSiteConfig<string>('domain')
+
 export const rootNotionPageId: string = parsePageId(
-  getSiteConfig('rootNotionPageId'),
+  rawRootNotionPageId,
   { uuid: false }
 )
 
@@ -29,7 +33,7 @@ if (!rootNotionPageId) {
 export const rootNotionSpaceId: string | null = parsePageId(
   getSiteConfig('rootNotionSpaceId', null),
   { uuid: true }
-)
+) || null
 
 export const pageUrlOverrides = cleanPageUrlMap(
   getSiteConfig('pageUrlOverrides', {}) || {},
@@ -49,7 +53,8 @@ export const isDev = environment === 'development'
 // general site config
 export const name: string = getSiteConfig('name')
 export const author: string = getSiteConfig('author')
-export const domain: string = getSiteConfig('domain')
+export const domain: string = normalizeHostname(rawDomain)
+export const rootDomain: string = getHostname(rawRootNotionPageId) || domain
 export const description: string = getSiteConfig('description', 'Notion Blog')
 export const language: string = getSiteConfig('language', 'en')
 
@@ -138,6 +143,7 @@ export const api = {
 
 export const site: Site = {
   domain,
+  rootDomain,
   name,
   rootNotionPageId,
   rootNotionSpaceId,
@@ -152,7 +158,7 @@ export const fathomConfig = fathomId
   : undefined
 
 export const posthogId = process.env.NEXT_PUBLIC_POSTHOG_ID
-export const posthogConfig: posthog.Config = {
+export const posthogConfig = {
   api_host: 'https://app.posthog.com'
 }
 

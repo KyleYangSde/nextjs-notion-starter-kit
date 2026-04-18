@@ -106,6 +106,8 @@ const Tweet = ({ id }: { id: string }) => {
   return <TweetEmbed tweetId={id} />
 }
 
+const SafeNotionRenderer = NotionRenderer as any
+
 const propertyLastEditedTimeValue = (
   { block, pageHeader },
   defaultFn: () => React.ReactNode
@@ -188,7 +190,7 @@ export const NotionPage: React.FC<types.PageProps> = ({
   }, [site, recordMap, lite])
 
   const keys = Object.keys(recordMap?.block || {})
-  const block = recordMap?.block?.[keys[0]]?.value
+  const block = recordMap?.block?.[keys[0]]?.value as types.Block | undefined
 
   // const isRootPage =
   //   parsePageId(block?.id) === parsePageId(site?.rootNotionPageId)
@@ -261,16 +263,16 @@ export const NotionPage: React.FC<types.PageProps> = ({
       {isLiteMode && <BodyClassName className='notion-lite' />}
       {isDarkMode && <BodyClassName className='dark-mode' />}
 
-      <NotionRenderer
+      <SafeNotionRenderer
         bodyClassName={cs(
           styles.notion,
           pageId === site.rootNotionPageId && 'index-page'
         )}
         darkMode={isDarkMode}
         components={components}
-        recordMap={recordMap}
+        recordMap={recordMap as any}
         rootPageId={site.rootNotionPageId}
-        rootDomain={site.domain}
+        rootDomain={site.rootDomain || site.domain}
         fullPage={!isLiteMode}
         previewImages={!!recordMap.preview_images}
         showCollectionViewDropdown={false}
